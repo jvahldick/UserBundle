@@ -10,7 +10,7 @@
             "email": "jvahldick@gmail.com"
         }
     ],
-            
+
     "license": "MIT",        
     "minimum-stability": "beta",
     
@@ -18,4 +18,5 @@
         "psr-0": { "JHV\\Bundle\\UserBundle": "" }
     },            
     "target-dir": "JHV/Bundle/UserBundle"
+
 }
