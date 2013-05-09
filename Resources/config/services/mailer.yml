@@ -1,0 +1,9 @@
+services:
+    jhv_user.mailer:
+        class     : "%jhv_user.mailer.class%"
+        arguments :
+            - "@mailer"
+            - "@router"
+            - "@twig"
+            - "%jhv_user.parameter.templates%"
+            - "%jhv_user.parameter.emails%"

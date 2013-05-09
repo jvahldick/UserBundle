@@ -1,0 +1,17 @@
+services:
+    ### Gerenciador do login (para autenticação manual)
+    jhv_user.security.login_manager:
+        class       : "JHV\\Bundle\\UserBundle\\Security\\LoginManager"
+        arguments   :
+            - "@security.context"
+            - "@security.user_checker"
+            - "@security.authentication.session_strategy"
+            - "@service_container"
+            
+    ### Listener quanto ao último login (registro de data)
+    jhv_user.listener.interactive_login_listener:
+        class     : "JHV\\Bundle\\UserBundle\\EventListener\\LastLoginListener"
+        public    : false
+        arguments : ["@jhv_user.manager.handler"]
+        tags    :
+            - { name: "kernel.event_subscriber" }

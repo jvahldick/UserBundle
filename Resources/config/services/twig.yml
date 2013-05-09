@@ -1,0 +1,7 @@
+services:
+    jhv_user.twig_extension:
+        class     : "JHV\\Bundle\\UserBundle\\Twig\\Extension\\UserExtension"
+        arguments :
+            - "%jhv_user.parameter.translation_domain%"
+        tags      :
+            - { name: twig.extension }

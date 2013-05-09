@@ -1,0 +1,26 @@
+services:
+    ### Canonicalizar string (transformá-las para minúsuclas)
+    jhv_user.canonicalizer:
+        class     : "%jhv_user.canonicalizer.class%"
+        public    : false
+  
+    ### Auxiliar na atuação dos gerenciadores de usuário
+    jhv_user.manager.user_helper:
+        class     : "%jhv_user.manager.helper.class%"
+        arguments : ["@security.encoder_factory", "@jhv_user.canonicalizer"]
+        public    : false
+  
+    ### Handler - Manusear os gerenciadores
+    jhv_user.manager.handler:
+        class     : "%jhv_user.manager.handler.class%"
+        public    : true
+            
+            
+    ### Roteamento de registro
+    jhv_user.router:
+        class     : "%jhv_user.manager.router.class%"
+        public    : false
+        arguments :
+            - "%jhv_user.parameter.registration.routes%"
+        tags      :
+            - { name: routing.loader }

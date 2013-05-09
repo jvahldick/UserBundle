@@ -1,0 +1,32 @@
+### Serviços
+services:
+  
+    ### Evento chamado nos casos: registro completo, registro confirmado, senha resetada
+    jhv_user.listener.authentication:
+        class       : "JHV\\Bundle\\UserBundle\\EventListener\\AuthenticationListener"
+        arguments   : ["@jhv_user.security.login_manager"]
+        tags        :
+            - { name: "kernel.event_subscriber" }
+            
+    ### Reinicialização de credenciais
+    jhv_user.listener.resetting:
+        class     : "JHV\\Bundle\\UserBundle\\EventListener\\ResettingListener"
+        arguments : ["@router", "%jhv_user.parameter.tokens_ttl%"]
+        tags   : 
+            - { name: "kernel.event_subscriber" }
+
+    ### Listener quanto ao último login (registro de data)
+    jhv_user.listener.flash_messages:
+        class     : "JHV\\Bundle\\UserBundle\\EventListener\\FlashListener"
+        arguments : ["@session", "@translator", "%jhv_user.parameter.translation_domain%"]
+        tags    :
+            - { name: "kernel.event_subscriber" }
+
+    ### User listener
+    jhv_user.listener.user_listener:
+        class     : "JHV\\Bundle\\UserBundle\\Listener\\UserListener"
+        public    : false
+        arguments : ["@jhv_user.manager.user_helper"]
+        tags        :
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }

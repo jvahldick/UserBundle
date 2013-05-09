@@ -1,0 +1,8 @@
+{% trans_default_domain jhv_user_get_translation_domain() %}
+
+<form action="{{ path(app.request.attributes.get('_route')) }}" {{ form_enctype(form) }} method="POST" class="jhv_user_registration_register">
+    {{ form_widget(form) }}
+    <div>
+        <input type="submit" value="{{ 'registration.submit'|trans }}" />
+    </div>
+</form>

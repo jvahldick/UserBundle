@@ -1,0 +1,9 @@
+{% trans_default_domain jhv_user_get_translation_domain() %}
+
+<div class="jhv_user_group_list">
+    <ul>
+    {% for group in groups %}
+        <li><a href="{{ path('jhv_user_groups_edit_' ~ app.request.get('manager'), { 'groupId': group.id() }) }}">{{ group.name() }}</a></li>
+    {% endfor %}
+    </ul>
+</div>

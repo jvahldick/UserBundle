@@ -1,0 +1,8 @@
+{% trans_default_domain jhv_user_get_translation_domain() %}
+
+<form action="{{ path('jhv_user_resetting_reset_' ~ app.request.get('manager'), { 'token': token }) }}" {{ form_enctype(form) }} method="POST" class="jhv_user_resetting_reset">
+    {{ form_widget(form) }}
+    <div>
+        <input type="submit" value="{{ 'resetting.reset.submit'|trans }}" />
+    </div>
+</form>

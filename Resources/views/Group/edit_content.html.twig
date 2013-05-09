@@ -1,0 +1,9 @@
+{% trans_default_domain jhv_user_get_translation_domain() %}
+
+<form action="{{ path(app.request.attributes.get('_route'), { groupId: group.id }) }}" {{ form_enctype(form) }} method="POST" class="jhv_user_group_edit">
+    {{ form_widget(form) }}
+        
+    <div>
+        <input type="submit" value="{{ 'group.edit.submit'|trans }}" />
+    </div>
+</form>

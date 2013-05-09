@@ -1,0 +1,32 @@
+{% trans_default_domain jhv_user_get_translation_domain() %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <div>
+            {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}) }} |
+                <a href="{{ path('jhv_user_security_logout_' ~ app.request.get('manager')) }}">
+                    {{ 'layout.logout'|trans() }}
+                </a>
+            {% else %}
+                <a href="{{ path('jhv_user_security_login_' ~ app.request.get('manager')) }}">{{ 'layout.login'|trans() }}</a>
+            {% endif %}
+        </div>
+
+        {% for type, messages in app.session.flashbag.all() %}
+            {% for message in messages %}
+                <div class="flash-{{ type }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div>
+            {% block jhv_user_content %}{% endblock %}
+        </div>
+    </body>
+</html>

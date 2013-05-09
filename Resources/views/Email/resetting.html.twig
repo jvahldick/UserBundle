@@ -1,0 +1,13 @@
+{% block subject %}
+	{% trans_default_domain jhv_user_get_translation_domain() %}
+    {% autoescape false %}
+        {{ 'resetting.email.subject'|trans({'%username%': user.username, '%confirmationUrl%': confirmationUrl}) }}
+    {% endautoescape %}
+{% endblock subject %}
+
+{% block body_text %}{% endblock body_text %}
+
+{% block body_html %}
+    {% trans_default_domain jhv_user_get_translation_domain() %}
+    {{ 'resetting.email.message'|trans({'%username%': user.username, '%confirmationUrl%': confirmationUrl})|raw }}
+{% endblock body_html %}
