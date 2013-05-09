@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
         $node
             ->children()
                 ->scalarNode('default_translation_domain')->defaultValue('JHVUserBundle')->end()
+                ->scalarNode('enabled_router')->defaultFalse()->end()
                 ->arrayNode('email')
                     ->children()
                         ->scalarNode('from_address')->isRequired()->end()

@@ -27,6 +27,7 @@ class JHVUserExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         
         // Definição de parâmetros
         $container->setParameter('jhv_user.parameter.translation_domain', $config['default_translation_domain']);
@@ -48,14 +49,19 @@ class JHVUserExtension extends Extension
         $this->processTemplates($container, $config['managers'], $config['classes']);
         
         // Registrar roteadores (e verificar grupos)
-        foreach ($config['routes'] as $manager => $data) {
-            if (false === $data['groups']['enabled']) {
-                unset($config['routes'][$manager]['groups']);
+        if (true === $config['enabled_router']) {
+            foreach ($config['routes'] as $manager => $data) {
+                if (false === $data['groups']['enabled']) {
+                    unset($config['routes'][$manager]['groups']);
+                }
+                
+                unset($config['routes'][$manager]['groups']['enabled']);
             }
-            
-            unset($config['routes'][$manager]['groups']['enabled']);
+            $container->setParameter('jhv_user.parameter.registration.routes', $config['routes']);
+
+            // Carregar arquivo de configuração de router
+            $loader->load('services/router.yml');
         }
-        $container->setParameter('jhv_user.parameter.registration.routes', $config['routes']);
         
         // Definir parâmetros de resetting
         $this->processResettingParameters($container, $config['managers'], $config['email']);
@@ -63,7 +69,7 @@ class JHVUserExtension extends Extension
         // E-mails
         $container->setParameter('jhv_user.parameter.emails', $this->emails);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        // Arquivos
         $loader->load('services/services.yml');
         $loader->load('services/security.yml');
         $loader->load('services/mailer.yml');

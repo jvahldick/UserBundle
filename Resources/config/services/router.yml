@@ -1,0 +1,9 @@
+services:	
+	### Roteamento de registro
+    jhv_user.router:
+        class     : "%jhv_user.manager.router.class%"
+        public    : false
+        arguments :
+            - "%jhv_user.parameter.registration.routes%"
+        tags      :
+            - { name: routing.loader }
