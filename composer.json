@@ -1,0 +1,21 @@
+{
+    "name": "jhv/user-bundle",
+    "type": "symfony-bundle",
+    "description": "JHVUserBundle",
+    "keywords": ["user manager", "user", "manager"],
+    
+    "authors": [
+        {
+            "name": "Jorge Vahldick",
+            "email": "jvahldick@gmail.com"
+        }
+    ],
+            
+    "license": "MIT",        
+    "minimum-stability": "beta",
+    
+    "autoload": {
+        "psr-0": { "JHV\\Bundle\\UserBundle": "" }
+    },            
+    "target-dir": "JHV/Bundle/UserBundle"
+}
