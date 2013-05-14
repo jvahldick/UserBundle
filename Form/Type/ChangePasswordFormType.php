@@ -2,7 +2,6 @@
 
 namespace JHV\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
@@ -14,7 +13,7 @@ use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
  * @license Please view /Resources/meta/LICENSE
  * @copyright (c) 2013
  */
-class ChangePasswordFormType extends AbstractType
+class ChangePasswordFormType extends BaseType
 {
     
     protected $translationDomain = 'JHVUserBundle';

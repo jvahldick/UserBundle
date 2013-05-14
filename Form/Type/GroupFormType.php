@@ -2,7 +2,6 @@
 
 namespace JHV\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
@@ -13,16 +12,14 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  * @license Please view /Resources/meta/LICENSE
  * @copyright (c) 2013
  */
-class GroupFormType extends AbstractType
+class GroupFormType extends BaseType
 {
-    
-    protected $translationDomain = 'JHVUserBundle';
     
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('name', null, array(
             'label'                 => 'form.label.group_name', 
-            'translation_domain'    => $this->translationDomain
+            'translation_domain'    => $this->getTranslationDomain(),
         ));
     }
     

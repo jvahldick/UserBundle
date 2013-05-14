@@ -2,7 +2,6 @@
 
 namespace JHV\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
@@ -13,17 +12,17 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  * @license Please view /Resources/meta/LICENSE
  * @copyright (c) 2013
  */
-class RegistrationFormType extends AbstractType
+class RegistrationFormType extends BaseType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username', null, array('label' => 'form.label.username', 'translation_domain' => 'JHVUserBundle'))
-            ->add('email', 'email', array('label' => 'form.label.email', 'translation_domain' => 'JHVUserBundle'))
+            ->add('username', null, array('label' => 'form.label.username', 'translation_domain' => $this->getTranslationDomain()))
+            ->add('email', 'email', array('label' => 'form.label.email', 'translation_domain' => $this->getTranslationDomain()))
             ->add('plainPassword', 'repeated', array(
                 'type' => 'password',
-                'options' => array('translation_domain' => 'JHVUserBundle'),
+                'options' => array('translation_domain' => $this->getTranslationDomain()),
                 'first_options' => array('label' => 'form.label.password'),
                 'second_options' => array('label' => 'form.label.password_confirmation'),
                 'invalid_message' => 'form.error.password_confirmation',

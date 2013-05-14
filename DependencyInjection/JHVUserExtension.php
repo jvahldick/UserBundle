@@ -28,22 +28,51 @@ class JHVUserExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        
+
+        // Para melhor adaptação, registrar somente os nomes dos managers
+        $managers = array_keys($config['managers']);
+
         // Definição de parâmetros
         $container->setParameter('jhv_user.parameter.translation_domain', $config['default_translation_domain']);
-        $container->setParameter('jhv_user.canonicalizer.class', $config['classes']['canonicalizer']);
-        $container->setParameter('jhv_user.manager.helper.class', $config['classes']['user_helper']);
-        $container->setParameter('jhv_user.manager.handler.class', $config['classes']['manager_handler']);
-        $container->setParameter('jhv_user.manager.router.class', $config['classes']['router']);
-        $container->setParameter('jhv_user.mailer.class', $config['classes']['mailer']);
-        $container->setParameter('jhv_user.template.manager.class', $config['classes']['template_manager']);
-        $container->setParameter('jhv_user.template.renderer.class', $config['classes']['template_renderer']);
-        
-        // Verificação de em´s para os roteadores
-        if (array_diff(array_keys($config['managers']), array_keys($config['routes']))) {
-            throw new \RunTimeException('You must register call manager on both locale, routes and managers.');
+        $container->setParameter('jhv_user.parameter.template.default_layout', $config['templates']['classes']['manager']);
+        $container->setParameter('jhv_user.parameter.template.block_name', $config['templates']['classes']['renderer']);
+
+        // Classes (Util)
+        $container->setParameter('jhv_user.parameter.class.canonicalizer', $config['classes']['util']['canonicalizer']);
+
+        // Classes (Managers)
+        $container->setParameter('jhv_user.parameter.class.manager.handler', $config['classes']['managers']['handler']);
+        $container->setParameter('jhv_user.parameter.class.manager.user', $config['classes']['managers']['user_manager']);
+        $container->setParameter('jhv_user.parameter.class.manager.user_helper', $config['classes']['managers']['user_helper']);
+        $container->setParameter('jhv_user.parameter.class.manager.group', $config['classes']['managers']['group_manager']);
+        $container->setParameter('jhv_user.parameter.class.security.login_manager', $config['classes']['managers']['login_manager']);
+
+        // Classes (Provedores)
+        $container->setParameter('jhv_user.parameter.class.provider.username', $config['classes']['providers']['auth_by_username']);
+        $container->setParameter('jhv_user.parameter.class.provider.username_or_password', $config['classes']['providers']['auth_by_email']);
+
+        // Classes (Template)
+        $container->setParameter('jhv_user.parameter.class.template.manager', $config['templates']['classes']['manager']);
+        $container->setParameter('jhv_user.parameter.class.template.renderer', $config['templates']['classes']['renderer']);
+
+        // Verificar se o roteamento de está habilitado
+        if (true === $config['enabled_routing']) {
+            // Efetuar registro do serviço de template
+            $this->processTemplateSection($container, $config['managers']);
+
+            $sections = array('security', 'registration', 'resetting', 'profile', 'group');
+            foreach ($managers as $manager_name) {
+                foreach ($routes as $route_group) {
+                    var_dump($config['managers'][$manager_name][$route_group]['templates']);
+                    die;
+                }
+            }
         }
-        
+
+        // TODO: Remover
+        die('fim');
+        exit;
+
         // Processamento da geração de serviços para gerenciamento de usuários
         $this->processManagers($container, $config['managers'], $config['classes']);
         $this->processTemplates($container, $config['managers'], $config['classes']);
@@ -135,9 +164,39 @@ class JHVUserExtension extends Extension
         }
     }
     
-    protected function processTemplates(ContainerBuilder $container, array $managers)
+    /**
+     * Efetuar processamento de templates.
+     * 
+     * @param ContainerBuilder $container
+     * @param array $managers
+     * @return void
+     */
+    protected function processTemplateSection(ContainerBuilder $container, array $managers)
     {
+        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
         $templateFiles = array();
+
+        // Percorrer a listagem de gerenciamentos
+        foreach ($managers as $name => $data) {
+            foreach ($sections as $section) {
+                echo $section . '<br />';
+                foreach ($data[$section]['templates'] as $key => $template) {
+                    $templateFiles[$section . '_' . $key] = $template;
+                }
+            }
+            var_dump($templateFiles);
+            die;
+            /*
+            $container
+                ->setDefinition(sprintf('jhv_user.template.%s_renderer', $name), new Definition(
+
+                ))
+            ;
+            */
+        }
+        die/
+
+        /*
         foreach ($managers as $key => $data) {
             $templates = $data['templates'];
             $templateFiles[$key] = $templates;
@@ -156,6 +215,7 @@ class JHVUserExtension extends Extension
                 ))
             ;
         }
+        */
         
         $container->setParameter('jhv_user.parameter.templates', $templateFiles);
     }

@@ -2,8 +2,7 @@
 
 namespace JHV\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\AbstractType;use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
@@ -13,14 +12,14 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
  * @license Please view /Resources/meta/LICENSE
  * @copyright (c) 2013
  */
-class ResettingFormType extends AbstractType
+class ResettingFormType extends BaseType
 {
     
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
-            'options' => array('translation_domain' => 'JHVUserBundle'),
+            'options' => array('translation_domain' => $this->getTranslationDomain()),
             'first_options' => array('label' => 'form.label.new_password'),
             'second_options' => array('label' => 'form.label.new_password_confirmation'),
             'invalid_message' => 'form.error.password_confirmation',

@@ -2,7 +2,6 @@
 
 namespace JHV\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
@@ -14,10 +13,8 @@ use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
  * @license Please view /Resources/meta/LICENSE
  * @copyright (c) 2013
  */
-class ProfileFormType extends AbstractType
+class ProfileFormType extends BaseType
 {
-    
-    protected $translationDomain = 'JHVUserBundle';
     
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -26,7 +23,7 @@ class ProfileFormType extends AbstractType
 
         $builder->add('current_password', 'password', array(
             'label'                 => 'form.label.current_password',
-            'translation_domain'    => $this->translationDomain,
+            'translation_domain'    => $this->getTranslationDomain(),
             'mapped'                => false,
             'constraints'           => $constraint,
         ));
@@ -54,8 +51,8 @@ class ProfileFormType extends AbstractType
     protected function buildUserForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username', null, array('label' => 'form.label.username', 'translation_domain' => $this->translationDomain))
-            ->add('email', 'email', array('label' => 'form.label.email', 'translation_domain' => $this->translationDomain))
+            ->add('username', null, array('label' => 'form.label.username', 'translation_domain' => $this->getTranslationDomain()))
+            ->add('email', 'email', array('label' => 'form.label.email', 'translation_domain' => $this->getTranslationDomain()))
         ;
     }
     
