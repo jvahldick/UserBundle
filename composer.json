@@ -12,7 +12,7 @@
     ],
 
     "license": "MIT",        
-    "minimum-stability": "beta",
+    "minimum-stability": "dev",
     
     "autoload": {
         "psr-0": { "JHV\\Bundle\\UserBundle": "" }
