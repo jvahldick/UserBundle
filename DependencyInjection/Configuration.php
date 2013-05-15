@@ -21,24 +21,24 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('jhv_user');
         
-        // Configurações gerais
+        // Configuracoes gerais
         $this->addDefaultConfigurationSection($rootNode);
         $this->addClassesSection($rootNode);
         $this->addTemplatesSection($rootNode);
         
-        // Configurações específicas por gerenciadores (conexões)
+        // Configuracoes especificas por sessao
         $this->addManagersSection($rootNode);
 
         return $treeBuilder;
     }
     
     /**
-     * Definição de configurações principais.
+     * Definicao das configuracoes principais.
      * 
-     * Configurações estas:
-     * - Definição do arquivo de tradução
-     * - Definição para envio de e-mails
-     * - Verificar criação ou não de roteamentos
+     * Configuracoes:
+     * - Definicao do dominio para traducao (arquivo)
+     * - Definicao para envio de e-mails
+     * - Verificar criacao ou nao de roteamentos
      * 
      * @param \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition $node
      * @return void
@@ -61,7 +61,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Definição das classes dos objetos.
+     * Definicao das classes dos objetos.
      * - Classes de gerenciamento das entidades
      * - Classes de utilidades
      * - Provedores de acesso
@@ -87,12 +87,14 @@ class Configuration implements ConfigurationInterface
                             ->addDefaultsIfNotSet()
                         ->end()
                 
-                        // Úteis
+                        // Uteis
                         ->arrayNode('util')
                             ->children()
+                                ->scalarNode('form_factory')->defaultValue('JHV\\Bundle\\UserBundle\\Form\\Factory\\FormFactory')->isRequired()->cannotBeEmpty()->end()
                                 ->scalarNode('canonicalizer')->defaultValue('JHV\\Bundle\\UserBundle\\Util\\Canonicalizer')->isRequired()->cannotBeEmpty()->end()
                                 ->scalarNode('router')->defaultValue('JHV\\Bundle\\UserBundle\\Routing\\RouterLoader')->isRequired()->cannotBeEmpty()->end()
                                 ->scalarNode('mailer')->defaultValue('JHV\\Bundle\\UserBundle\\Mailer\\Mailer')->isRequired()->cannotBeEmpty()->end()
+                                ->scalarNode('validator')->defaultValue('JHV\\Bundle\\UserBundle\\Validator\\Initializer')->isRequired()->cannotBeEmpty()->end()
                             ->end()
                             ->addDefaultsIfNotSet()
                         ->end()
@@ -107,7 +109,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 
-                    // Definir padrões caso não haver definições
+                    // Definir padroes caso nao hajam definicoes especificas
                     ->addDefaultsIfNotSet()
                 ->end()
             ->end()
@@ -115,10 +117,10 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Definição das configurações principais quanto a templates.
-     * - Definição do nome do template principal
-     * - Definição do nome do bloco de exibição de conteúdo
-     * - Definição de classes para renderização e gerencimaneto de templates
+     * Definicao das configuracoes principais quanto a template.
+     * - Definicao do nome do template principal
+     * - Definicao do nome do bloco de exibicao de conteudo
+     * - Definicao de classes para renderizacao e gerencimaneto de templates
      * 
      * @param \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition $node
      * @return void
@@ -141,7 +143,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 
-                    // Definições padrões caso não esteja definido
+                    // Definir padroes caso nao hajam definicoes especificas
                     ->addDefaultsIfNotSet()
                 ->end()
             ->end()
@@ -149,7 +151,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Sessão referente aos gerenciadores das entidades e conexões.
+     * Sessao referente aos gerenciadores das entidades e conexoes.
      * 
      * @param \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition $node
      * @return void
@@ -162,7 +164,7 @@ class Configuration implements ConfigurationInterface
                     ->requiresAtLeastOneElement()
                     ->prototype('array')
                         ->children()
-                            // Nome do firewall e conexão
+                            // Nome do firewall e conexao
                             ->scalarNode('connection')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('firewall_name')->isRequired()->cannotBeEmpty()->end()
 
@@ -170,13 +172,13 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('classes')
                                 ->children()
                                     ->scalarNode('user')->isRequired()->cannotBeEmpty()->end()
-                                    ->scalarNode('group')->isRequired()->cannotBeEmpty()->end()
+                                    ->scalarNode('group')->defaultNull()->end()
                                     ->scalarNode('user_manager')->defaultNull()->end()
                                     ->scalarNode('group_manager')->defaultNull()->end()
                                 ->end()
                             ->end()
                 
-                            // Adicionar configurações específicas por sessões
+                            // Adicionar configuracoes especificas por sessao
                             ->append($this->appendSecuritySection())
                             ->append($this->appendRegistrationSection())
                             ->append($this->appendResettingSection())
@@ -190,9 +192,9 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Definições da sessão de segurança.
-     * Este método irá percorrer as configurações da sessão efetuando
-     * desta forma a validação dos dados.
+     * Definicoes da sessao de seguranca.
+     * Este metodo ira percorrer as configuracoes da sessao efetuando
+     * desta forma a validacao dos dados.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -203,7 +205,7 @@ class Configuration implements ConfigurationInterface
         
         $node
             ->children()
-                // Templates que serão utilizados no controlador da segurança
+                // Templates que serao utilizados no controlador da seguranca
                 ->arrayNode('templates')
                     ->children()
                         ->scalarNode('login')->defaultValue('JHVUserBundle:Security:login.html.twig')->end()
@@ -221,9 +223,9 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Efetuar o registro nos nodos da sessão de registro.
-     * Este método irá percorrer as configurações da sessão efetuando
-     * desta forma a validação dos dados.
+     * Efetuar o registro nos nodos da sessao de registro.
+     * Este metodo ira percorrer as configuracoes da sessao efetuando
+     * desta forma a validacao dos dados.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition $node
      */
@@ -234,7 +236,7 @@ class Configuration implements ConfigurationInterface
         
         $node
             ->children()
-                // Formulário
+                // Formulario
                 ->arrayNode('form')
                     ->children()
                         ->scalarNode('name')->defaultValue('jhv_user_registration_form')->isRequired()->end()
@@ -257,7 +259,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Roteamento para sessão de registro
+                // Roteamento para sessao de registro
                 ->append($this->appendRegistrationRouteSection())
             ->end()
             ->addDefaultsIfNotSet()
@@ -267,9 +269,9 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Configurações e embasamento da recuperação de senha.
-     * Este método irá percorrer as configurações da sessão efetuando
-     * desta forma a validação dos dados.
+     * Configuracoes e embasamento da recuperacao de senha.
+     * Este metodo ira percorrer as configuracoes da sessao efetuando
+     * desta forma a validacao dos dados.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -290,7 +292,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Formulário
+                // Formulario
                 ->arrayNode('form')
                     ->children()
                         ->scalarNode('name')->defaultValue('jhv_user_resetting_form')->isRequired()->end()
@@ -303,10 +305,10 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Templates para recuperação de senha
+                // Templates para recuperacao de senha
                 ->arrayNode('templates')
                     ->children()
-                        // Reinicialização de credenciais, ou recuperação de senha
+                        // Reinicializacao de credenciais, ou recuperacao de senha
                         ->scalarNode('request')->defaultValue('JHVUserBundle:Resetting:error.html.twig')->end()
                         ->scalarNode('reset')->defaultValue('JHVUserBundle:Email:resetting.html.twig')->end()
 
@@ -327,9 +329,9 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Configuração e embasamento na criação de grupos de usuários.
-     * Este método irá percorrer as configurações da sessão efetuando
-     * desta forma a validação dos dados.
+     * Configuracao e embasamento na criacao de grupos de usuarios.
+     * Este metodo ira percorrer as configuracoes da sessao efetuando
+     * desta forma a validacao dos dados.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -340,7 +342,7 @@ class Configuration implements ConfigurationInterface
         
         $node
             ->children()                
-                // Informações de formulário
+                // Informacoes de formulario
                 ->arrayNode('form')
                     ->children()
                         ->scalarNode('name')->defaultValue('jhv_user_group_form')->end()
@@ -353,7 +355,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Templates relacionados aos grupos de usuários
+                // Templates relacionados aos grupos de usuarios
                 ->arrayNode('templates')
                     ->children()
                         ->scalarNode('create')->defaultValue('JHVUserBundle:Group:create.html.twig')->end()
@@ -373,9 +375,9 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Processamento dos nodos referentes ao perfil do usuário.
-     * Este método irá percorrer as configurações da sessão efetuando
-     * desta forma a validação dos dados.
+     * Processamento dos nodos referentes ao perfil do usuario.
+     * Este metodo ira percorrer as configuracoes da sessao efetuando
+     * desta forma a validacao dos dados.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -386,7 +388,7 @@ class Configuration implements ConfigurationInterface
         
         $node
             ->children()
-                // Nomenclatura aos formulários
+                // Nomenclatura aos formularios
                 ->arrayNode('form')
                     ->children()
                         ->scalarNode('name')->defaultValue('jhv_user_profile_form')->isRequired()->end()
@@ -399,7 +401,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Templates referentes ao peril do usuário
+                // Templates referentes ao peril do usuario
                 ->arrayNode('templates')
                     ->children()
                         ->scalarNode('change_password')->defaultValue('JHVUserBundle:Profile:change_password.html.twig')->end()
@@ -419,7 +421,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Percorre a listagem de roteamentos definidos para segurança.
+     * Percorre a listagem de roteamentos definidos para seguranca.
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
     protected function appendSecurityRouteSection()
@@ -468,7 +470,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Verificação e registro do nodo referente ao registro
+     * Verificacao e registro do nodo referente ao registro
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
     protected function appendRegistrationRouteSection()
@@ -490,7 +492,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Confirmação de registro
+                // Confirmacao de registro
                 ->arrayNode('confirmed')
                     ->children()
                         ->scalarNode('path')->defaultValue('/confirmed')->end()
@@ -507,7 +509,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Verificação e registro do nodo referente ao perfil
+     * Verificacao e registro do nodo referente ao perfil
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
     protected function appendProfileRouteSection()
@@ -553,7 +555,7 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Roteamento para sessão de recuperação de senha.
+     * Roteamento para sessao de recuperacao de senha.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -566,7 +568,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('prefix')->defaultValue('/resetting')->end()
                 
-                // Solicitação de reinialização da senha
+                // Solicitacao de recuperacao da senha
                 ->arrayNode('request')
                     ->children()
                         ->scalarNode('path')->defaultValue('/request')->end()
@@ -586,7 +588,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Verificação do e-mail
+                // Verificacao do e-mail
                 ->arrayNode('check_email')
                     ->children()
                         ->scalarNode('path')->defaultValue('/email/check')->end()
@@ -596,7 +598,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Reinicialização da senha
+                // Reinicializacao da senha
                 ->arrayNode('reset')
                     ->children()
                         ->scalarNode('path')->defaultValue('/reset/{token}')->end()
@@ -613,8 +615,8 @@ class Configuration implements ConfigurationInterface
     }
     
     /**
-     * Roteamento para sessão de grupos.
-     * Percorrer e validar as configurações referentes ao roteamento de grupos.
+     * Roteamento para sessao de grupos.
+     * Percorrer e validar as configuracoes referentes ao roteamento de grupos.
      * 
      * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
      */
@@ -637,7 +639,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
                 
-                // Criação de grupos
+                // Criacao de grupos
                 ->arrayNode('create')
                     ->children()
                         ->scalarNode('path')->defaultValue('/create')->end()
@@ -647,7 +649,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
 
-                // Edição de grupos
+                // Edicao de grupos
                 ->arrayNode('edit')
                     ->children()
                         ->scalarNode('path')->defaultValue('/{groupId}/edit')->end()
@@ -657,7 +659,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                 ->end()
 
-                // Exclusão de grupos
+                // Exclusao de grupos
                 ->arrayNode('delete')
                     ->children()
                         ->scalarNode('path')->defaultValue('/{groupId}/delete')->end()

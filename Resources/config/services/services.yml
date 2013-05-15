@@ -1,16 +1,16 @@
 services:
     ### Canonicalizar string (transformá-las para minúsuclas)
     jhv_user.canonicalizer:
-        class     : "%jhv_user.canonicalizer.class%"
+        class     : "%jhv_user.parameter.class.canonicalizer%"
         public    : false
   
     ### Auxiliar na atuação dos gerenciadores de usuário
     jhv_user.manager.user_helper:
-        class     : "%jhv_user.manager.helper.class%"
+        class     : "%jhv_user.parameter.class.manager.user_helper%"
         arguments : ["@security.encoder_factory", "@jhv_user.canonicalizer"]
         public    : false
   
     ### Handler - Manusear os gerenciadores
     jhv_user.manager.handler:
-        class     : "%jhv_user.manager.handler.class%"
+        class     : "%jhv_user.parameter.class.manager.handler%"
         public    : true

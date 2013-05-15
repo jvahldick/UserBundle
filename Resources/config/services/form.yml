@@ -1,30 +1,35 @@
 services:
     ### Registro
     jhv_user.form_type.registration:
-        class   : "JHV\\Bundle\\UserBundle\\Form\\Type\\RegistrationFormType"
-        tags    :
+        class     : "JHV\\Bundle\\UserBundle\\Form\\Type\\RegistrationFormType"
+        arguments : ["%jhv_user.parameter.translation_domain%"]
+        tags      :
             - { name: "form.type", alias: "jhv_user_registration_type" }
             
     ### Perfil
     jhv_user.form_type.profile:
-        class   : "JHV\\Bundle\\UserBundle\\Form\\Type\\ProfileFormType"
-        tags    :
+        class     : "JHV\\Bundle\\UserBundle\\Form\\Type\\ProfileFormType"
+        arguments : ["%jhv_user.parameter.translation_domain%"]
+        tags      :
             - { name: "form.type", alias: "jhv_user_profile_type" }
             
     ### Resetting
     jhv_user.form_type.resetting:
-        class   : "JHV\\Bundle\\UserBundle\\Form\\Type\\ResettingFormType"
-        tags    :
+        class     : "JHV\\Bundle\\UserBundle\\Form\\Type\\ResettingFormType"
+        arguments : ["%jhv_user.parameter.translation_domain%"]
+        tags      :
             - { name: "form.type", alias: "jhv_user_resetting_type" }
             
     ### Alteração de senha
     jhv_user.form_type.change_password:
-        class   : "JHV\\Bundle\\UserBundle\\Form\\Type\\ChangePasswordFormType"
-        tags    :
+        class     : "JHV\\Bundle\\UserBundle\\Form\\Type\\ChangePasswordFormType"
+        arguments : ["%jhv_user.parameter.translation_domain%"]
+        tags      :
             - { name: "form.type", alias: "jhv_user_change_password_type" }
             
     ### Grupos
     jhv_user.form_type.group:
-        class   : "JHV\\Bundle\\UserBundle\\Form\\Type\\GroupFormType"
-        tags    :
+        class     : "JHV\\Bundle\\UserBundle\\Form\\Type\\GroupFormType"
+        arguments : ["%jhv_user.parameter.translation_domain%"]
+        tags      :
             - { name: "form.type", alias: "jhv_user_group_type" }

@@ -12,11 +12,11 @@
     ],
 
     "license": "MIT",        
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     
     "autoload": {
         "psr-0": { "JHV\\Bundle\\UserBundle": "" }
     },            
+            
     "target-dir": "JHV/Bundle/UserBundle"
-
 }

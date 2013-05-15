@@ -26,11 +26,11 @@ class FormFactory {
         $this->validationGroups = $validationGroups;
     }
     
-    public function createForm()
+    public function createForm(array $options = array())
     {
-        return $this->formFactory->createNamed($this->name, $this->type, null, array(
+        return $this->formFactory->createNamed($this->name, $this->type, null, array_merge($options, array(
             'validation_groups' => $this->validationGroups
-        ));
+        )));
     }
     
 }

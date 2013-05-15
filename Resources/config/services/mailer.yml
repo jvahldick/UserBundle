@@ -1,6 +1,7 @@
 services:
+    ### Configurações de e-mail
     jhv_user.mailer:
-        class     : "%jhv_user.mailer.class%"
+        class     : "%jhv_user.parameter.class.mailer%"
         arguments :
             - "@mailer"
             - "@router"

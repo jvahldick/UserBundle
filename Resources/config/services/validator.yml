@@ -1,0 +1,8 @@
+services:
+    ### Validação dos campos
+    jhv_user.validator.initializer:
+        class     : "%jhv_user.parameter.class.validator%"
+        public    : false
+        arguments : ["@jhv_user.manager.user_helper"]
+        tags      :
+            - { name: "validator.initializer" }

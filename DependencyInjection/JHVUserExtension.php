@@ -29,16 +29,91 @@ class JHVUserExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        // Para melhor adaptação, registrar somente os nomes dos managers
-        $managers = array_keys($config['managers']);
+        // Inicializacao de variaveis
+        $routes     = array();
+        $emails     = array();
+        $tokens     = array();
+        $templates  = array();
+        
+        // Definicao de parametros
+        $this->createContainerParameters($container, $config);
+        
+        // Processar as acoes referentes aos gerenciadores
+        foreach ($config['managers'] as $key => $data) {
+            // Criar o gerenciador
+            $this->createManagerDependencies($container, $key, $data);
+            
+            // Criar provedores de autenticacao
+            $this->createUserAuthenticationProvider($container, $key);
+            
+            // Templates
+            $this->createTemplateDefinition($container, $key, $data);
+            
+            // Registro dos templates
+            $templates[$key] = $this->getTemplates($data);
+            
+            // Criação de formFactories
+            $this->createFormFactoryDefinition($container, $key, $data);
+            
+            // Verificar se o roteamento de esta habilitado
+            if (true === $config['enabled_routing']) {
+                $routes[$key] = $this->getRoutes($data);
+            }
+            
+            // E-mails
+            $emails[$key]['resetting']['from_sender'] = (null !== $data['resetting']['email']['from_sender']) ?: $config['email']['from_sender'];
+            $emails[$key]['resetting']['from_address'] = (null !== $data['resetting']['email']['from_address']) ?: $config['email']['from_address'];
+            
+            // Tokens
+            $tokens[$key] = $ttl = $data['resetting']['token_time_to_live'];
+            $container->setParameter(sprintf('jhv_user.parameter.resetting.%s.token_ttl', $key), $ttl);
+        }
+        
+        // Caso os e-mails estejam definidos, registrar parametro de email
+        if (false === empty($emails)) {
+            $container->setParameter('jhv_user.parameter.emails', $emails);
+        }
+        
+        // Registrar parâmetro dos tokens de ttl
+        $container->setParameter('jhv_user.parameter.tokens_ttl', $tokens);
+        
+        // Registrar parâmetro de templates
+        $container->setParameter('jhv_user.parameter.templates', $templates);
+        
+        // Caso a disponibilizacao de rotas esteja habilitada, registrar dados para registro do servico
+        $container->setParameter('jhv_user.parameter.routes', $routes);
+        $loader->load('services/router.yml');
 
-        // Definição de parâmetros
+        // Arquivos
+        $loader->load('services/services.yml');
+        $loader->load('services/security.yml');
+        $loader->load('services/mailer.yml');
+        $loader->load('services/form.yml');
+        $loader->load('services/twig.yml');
+        $loader->load('services/listeners.yml');
+        $loader->load('services/validator.yml');
+    }
+    
+    /**
+     * Criacao de parametros para acesso dos servicos.
+     * 
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param array $config
+     * 
+     * @return void
+     */
+    protected function createContainerParameters(ContainerBuilder $container, array $config)
+    {
         $container->setParameter('jhv_user.parameter.translation_domain', $config['default_translation_domain']);
-        $container->setParameter('jhv_user.parameter.template.default_layout', $config['templates']['classes']['manager']);
-        $container->setParameter('jhv_user.parameter.template.block_name', $config['templates']['classes']['renderer']);
+        $container->setParameter('jhv_user.parameter.template.default_layout', $config['templates']['default_layout']);
+        $container->setParameter('jhv_user.parameter.template.block_name', $config['templates']['content_block']);
 
         // Classes (Util)
         $container->setParameter('jhv_user.parameter.class.canonicalizer', $config['classes']['util']['canonicalizer']);
+        $container->setParameter('jhv_user.parameter.class.router', $config['classes']['util']['router']);
+        $container->setParameter('jhv_user.parameter.class.mailer', $config['classes']['util']['mailer']);
+        $container->setParameter('jhv_user.parameter.class.form_factory', $config['classes']['util']['form_factory']);
+        $container->setParameter('jhv_user.parameter.class.validator', $config['classes']['util']['validator']);
 
         // Classes (Managers)
         $container->setParameter('jhv_user.parameter.class.manager.handler', $config['classes']['managers']['handler']);
@@ -49,175 +124,101 @@ class JHVUserExtension extends Extension
 
         // Classes (Provedores)
         $container->setParameter('jhv_user.parameter.class.provider.username', $config['classes']['providers']['auth_by_username']);
-        $container->setParameter('jhv_user.parameter.class.provider.username_or_password', $config['classes']['providers']['auth_by_email']);
+        $container->setParameter('jhv_user.parameter.class.provider.username_or_email', $config['classes']['providers']['auth_by_email']);
 
         // Classes (Template)
         $container->setParameter('jhv_user.parameter.class.template.manager', $config['templates']['classes']['manager']);
         $container->setParameter('jhv_user.parameter.class.template.renderer', $config['templates']['classes']['renderer']);
-
-        // Verificar se o roteamento de está habilitado
-        if (true === $config['enabled_routing']) {
-            // Efetuar registro do serviço de template
-            $this->processTemplateSection($container, $config['managers']);
-
-            $sections = array('security', 'registration', 'resetting', 'profile', 'group');
-            foreach ($managers as $manager_name) {
-                foreach ($routes as $route_group) {
-                    var_dump($config['managers'][$manager_name][$route_group]['templates']);
-                    die;
-                }
-            }
-        }
-
-        // TODO: Remover
-        die('fim');
-        exit;
-
-        // Processamento da geração de serviços para gerenciamento de usuários
-        $this->processManagers($container, $config['managers'], $config['classes']);
-        $this->processTemplates($container, $config['managers'], $config['classes']);
-        
-        // Registrar roteadores (e verificar grupos)
-        if (true === $config['enabled_router']) {
-            foreach ($config['routes'] as $manager => $data) {
-                if (false === $data['groups']['enabled']) {
-                    unset($config['routes'][$manager]['groups']);
-                }
-                
-                unset($config['routes'][$manager]['groups']['enabled']);
-            }
-            $container->setParameter('jhv_user.parameter.registration.routes', $config['routes']);
-
-            // Carregar arquivo de configuração de router
-            $loader->load('services/router.yml');
-        }
-        
-        // Definir parâmetros de resetting
-        $this->processResettingParameters($container, $config['managers'], $config['email']);
-        
-        // E-mails
-        $container->setParameter('jhv_user.parameter.emails', $this->emails);
-
-        // Arquivos
-        $loader->load('services/services.yml');
-        $loader->load('services/security.yml');
-        $loader->load('services/mailer.yml');
-        $loader->load('services/form.yml');
-        $loader->load('services/twig.yml');
-        $loader->load('services/listeners.yml');
     }
     
     /**
-     * Processar gerenciadores de usuários.
-     * 
-     * O método irá verificar quais os gerenciadores configurados para
-     * que possa haver mais de um EntityManager para usuários, fazendo
-     * assim com que possa haver diferentes usuários baseados a mesma
-     * referência de gerenciamento.
+     * Criar dependencias referente ao gerenciador.
+     * Dependencias estas que passam por criar o servicos necessarios para
+     * o funcionamento dos gerenciadores de grupos e usuarios.
      * 
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-     * @param array     $managers
-     * @param array     $classes
+     * @param string $manager Identificador
+     * @param array $data Informacoes referentes ao gerenciador
+     * 
+     * @return void
      */
-    protected function processManagers(ContainerBuilder $container, array $managers, array $classes)
+    protected function createManagerDependencies(ContainerBuilder $container, $manager, array $data)
     {
-        foreach ($managers as $key => $manager) {
-            $user_manager_class     = (null === $manager['user_manager']) ? $classes['user_manager'] : $manager['user_manager'];
-            $group_manager_class    = (null === $manager['group_manager']) ? $classes['group_manager'] : $manager['group_manager'];
-            $userDefinitionId       = sprintf('jhv_user.manager.%s.user', strtolower($key));
-            $groupDefinitionId      = sprintf('jhv_user.manager.%s.group', strtolower($key));
-            
-            ### Definição de um serviço para gerenciamento de usuários (de acordo com managers da configuração)
-            $container
-                ->setDefinition($userDefinitionId, new Definition(
-                    $user_manager_class,
-                    array(
-                        new Reference('jhv_user.manager.user_helper'),
-                        $manager['firewall_name'],
-                        new Reference(sprintf('doctrine.orm.%s_entity_manager', $manager['connection'])),
-                        $manager["user_class"],
-                    )
-                ))
-                // Definindo serviço como não público e com identificador para processar no compilador
-                ->addTag('jhv_user.user_manager', array('identifier' => $key))
-                ->setPublic(false)
-            ;
-            
-            ### Definição de um serviço para gerenciamento de grupos (de acordo com managers da configuração)
-            if (null !== $manager["group_class"] && class_exists($manager["group_class"])) {
-                $container
-                    ->setDefinition($groupDefinitionId, new Definition(
-                        $group_manager_class,
-                        array(
-                            new Reference(sprintf('doctrine.orm.%s_entity_manager', $manager['connection'])),
-                            $manager["group_class"],
-                        )
-                    ))
-                    // Definindo serviço como não público e com identificador para processar no compilador
-                    ->addTag('jhv_user.group_manager', array('identifier' => $key))
-                    ->setPublic(false)
-                ;
-            }
-            
-            // Criar provedores para autenticação
-            $this->createUserAuthenticationProvider($container, $key, $userDefinitionId, $classes);
+        $userManagerClass   = (null !== $data['classes']['user_manager']) ?: $container->getParameter('jhv_user.parameter.class.manager.user');
+        $groupManagerClass  = (null !== $data['classes']['group_manager']) ?: $container->getParameter('jhv_user.parameter.class.manager.group');
+        
+        // Criar o gerenciador de usuarios para o modelo de conexao
+        $this->createUserManagerDefinition($container, $manager, $userManagerClass, $data['firewall_name'], $data['connection'], $data['classes']['user']);
+        
+        // Caso o classe de grupo esteja definida, podera criar o gerenciador de grupos
+        if (null !== $data['classes']['group']) {
+            $this->createGroupManagerDefinition($container, $manager, $groupManagerClass, $data['connection'], $data['classes']['group']);
         }
     }
     
     /**
-     * Efetuar processamento de templates.
+     * Efetuar a criacao de um novo servico.
+     * Este servico é referente ao gerenciador de usuários.
      * 
-     * @param ContainerBuilder $container
-     * @param array $managers
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string $manager       Identificador do gerenciador
+     * @param string $class         Classe do gerenciador
+     * @param string $firewall      Nome do firewall
+     * @param string $connection    Nome da conexão
+     * @param string $entity        Entidade de usuário
+     * 
      * @return void
      */
-    protected function processTemplateSection(ContainerBuilder $container, array $managers)
+    protected function createUserManagerDefinition(ContainerBuilder $container, $manager, $class, $firewall, $connection, $entity)
     {
-        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
-        $templateFiles = array();
-
-        // Percorrer a listagem de gerenciamentos
-        foreach ($managers as $name => $data) {
-            foreach ($sections as $section) {
-                echo $section . '<br />';
-                foreach ($data[$section]['templates'] as $key => $template) {
-                    $templateFiles[$section . '_' . $key] = $template;
-                }
-            }
-            var_dump($templateFiles);
-            die;
-            /*
-            $container
-                ->setDefinition(sprintf('jhv_user.template.%s_renderer', $name), new Definition(
-
-                ))
-            ;
-            */
-        }
-        die/
-
-        /*
-        foreach ($managers as $key => $data) {
-            $templates = $data['templates'];
-            $templateFiles[$key] = $templates;
+        $container
+            ->setDefinition(sprintf('jhv_user.manager.%s.user', strtolower($manager)), new Definition(
+                $class,
+                array(
+                    new Reference('jhv_user.manager.user_helper'),
+                    $firewall,
+                    new Reference(sprintf('doctrine.orm.%s_entity_manager', $connection)),
+                    $entity,
+                )
+            ))
             
-            // Efetuar criação do serviço de template renderer
-            $container
-                ->setDefinition(sprintf('jhv_user.template.%s_renderer', $key), new Definition(
-                    $container->getParameter('jhv_user.template.renderer.class'), array(
-                        new Reference('twig'),
-                        new Definition($container->getParameter('jhv_user.template.manager.class'), array(
-                            $templates['default_layout'],
-                            $templates['content_block'],
-                            $templates['files'],
-                        ))
-                    )
-                ))
-            ;
-        }
-        */
-        
-        $container->setParameter('jhv_user.parameter.templates', $templateFiles);
+            // Definindo como um gerenciador de usuários
+            ->addTag('jhv_user.user_manager', array('identifier' => $manager))
+                
+            // Definicao nao sera publica
+            ->setPublic(false)
+        ;
+    }
+    
+    /**
+     * Efetuar a criacao de um novo servico.
+     * Este servico é referente ao gerenciador de grupos.
+     * 
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string $manager       Identificador do gerenciador
+     * @param string $class         Classe do gerenciador
+     * @param string $connection    Nome da conexão
+     * @param string $entity        Entidade do grupo
+     * 
+     * @return void
+     */
+    protected function createGroupManagerDefinition(ContainerBuilder $container, $manager, $class, $connection, $entity)
+    {
+        $container
+            ->setDefinition(sprintf('jhv_user.manager.%s.group', strtolower($manager)), new Definition(
+                $class,
+                array(
+                    new Reference(sprintf('doctrine.orm.%s_entity_manager', $connection)),
+                    $entity,
+                )
+            ))
+            
+            // Definindo como um gerenciador de grupos
+            ->addTag('jhv_user.group_manager', array('identifier' => $manager))
+                
+            // Definicao nao sera publica
+            ->setPublic(false)
+        ;
     }
     
     /**
@@ -228,47 +229,151 @@ class JHVUserExtension extends Extension
      * localização por username ou e-mail.
      * 
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-     * @param string    $ident          Identificador do ObjectManager && Provedor
-     * @param string    $definitionId   Identificador do serviço ObjectManager
-     * @param array     $classes        Classes configuradas
+     * @param string $identifier Identificador do ObjectManager && Provedor
+     * 
+     * @return void
      */
-    protected function createUserAuthenticationProvider(ContainerBuilder $container, $ident, $definitionId, array $classes)
+    protected function createUserAuthenticationProvider(ContainerBuilder $container, $identifier)
     {
-        // Definição de provider para busca de usuário por nome com basamento no EntityManager
-        $container->setDefinition('jhv_user.' . strtolower($ident) . '_provider.username', new Definition(
-            $classes['providers']['auth_by_username'], array(
-                new Reference($definitionId),
+        // Definicao de provedor para busca de usuarios por nome com embasamento no EntityManager
+        $container->setDefinition('jhv_user.' . strtolower($identifier) . '_provider.username', new Definition(
+            $container->getParameter('jhv_user.parameter.class.provider.username'), array(
+                new Reference(sprintf('jhv_user.manager.%s.user', strtolower($identifier))),
             )
         ))
         ->setPublic(false);
 
-        // Definição de provider para busca de usuário por e-mail ou nome de usuário baseado no EntityManager
-        $container->setDefinition('jhv_user.' . strtolower($ident) . '_provider.username_or_email', new Definition(
-            $classes['providers']['auth_by_email'], array(
-                new Reference($definitionId),
+        // Definicao de provedor para busca de usuarios por nome ou email com embasamento no EntityManager
+        $container->setDefinition('jhv_user.' . strtolower($identifier) . '_provider.username_or_email', new Definition(
+            $container->getParameter('jhv_user.parameter.class.provider.username_or_email'), array(
+                new Reference(sprintf('jhv_user.manager.%s.user', strtolower($identifier))),
             )
         ))
         ->setPublic(false);
     }
     
-    protected function processResettingParameters(ContainerBuilder $container, array $managers, $emailConfig)
+    /**
+     * Efetuar a criacao do gerenciador e renderizador de templates.
+     * 
+     * O renderizador e criado baseado no gerenciador, adicionando posteriormente
+     * o gerenciador com os respectivos templates.
+     * 
+     * Ira percorrer e registrar os templates configuradados enviando este para
+     * o gerenciador, registrando assim os templates.
+     * 
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string $manager
+     * @param array $data
+     */
+    protected function createTemplateDefinition(ContainerBuilder $container, $manager, array $data)
     {
-        $tokensTtl  = array();
+        $templates = $this->getTemplates($data);
         
-        foreach ($managers as $key => $manager) {
-            $container->setParameter(sprintf('jhv_user.parameter.resetting.%s.token_ttl', $key), $manager['resetting']['token_time_to_live']);
-            $tokensTtl[$key] = $manager['resetting']['token_time_to_live'];
-            $resetting = $manager['resetting'];
-            
-            // Configuração de informações de resetting
-            $this->emails[$key]['resetting'] = array(
-                'from_address'  => (null !== $resetting['email']['from_address']) ? $resetting['email']['from_address'] : $emailConfig['from_address'],
-                'from_sender'   => (null !== $resetting['email']['from_sender']) ? $resetting['email']['from_sender'] : $emailConfig['from_sender']
-            );
+        // Efetuar criação do serviço de template renderer
+        $container
+            ->setDefinition(sprintf('jhv_user.template.%s_renderer', $manager), new Definition(
+                $container->getParameter('jhv_user.parameter.class.template.renderer'), array(
+                    new Reference('twig'),
+                    new Definition($container->getParameter('jhv_user.parameter.class.template.manager'), array(
+                        $container->getParameter('jhv_user.parameter.template.default_layout'),
+                        $container->getParameter('jhv_user.parameter.template.block_name'),
+                        $templates,
+                    ))
+                )
+            ))
+        ;
+    }
+    
+    /**
+     * Localizar os templates relacionados aos dados passados por parametro.
+     * 
+     * @param array $data
+     * @return array
+     */
+    protected function getTemplates(array $data)
+    {
+        $templateSectioName = 'templates';
+        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
+        $templates = array();
+        
+        // Percorrer sessoes para registro dos templates
+        foreach ($sections as $section) {
+            // Verificar se existe mesmo o template
+            if (isset($data[$section][$templateSectioName])) {
+                foreach ($data[$section][$templateSectioName] as $key => $template) {
+                    $templates[strtolower($section . '_' . $key)] = $template;
+                }
+            }
         }
         
-        // Definir parâmetros na configuração
-        $container->setParameter('jhv_user.parameter.tokens_ttl', $tokensTtl);
+        return $templates;
+    }
+    
+    /**
+     * Localizar as rotas contidas no conteúdo do gerenciador.
+     * 
+     * @param array $data
+     * @return array
+     */
+    protected function getRoutes(array $data)
+    {
+        $routeSectionName = 'routing';
+        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
+        $routes = array();
+        
+        foreach ($sections as $section) {
+            // Caso a classe de grupo nao esteja ativa, nao rotear
+            if ($section === 'group' && null === $data['classes']['group'])
+                continue;
+            
+            if (isset($data[$section][$routeSectionName])) {
+                $sectionRoutes = $data[$section][$routeSectionName];
+                
+                // Percorrer as rotas
+                foreach ($sectionRoutes as $key => $value) {
+                    $routes[$section][$key] = $value;
+                }
+            }
+        }
+        
+        return $routes;
+    }
+    
+    /**
+     * Efetuar a criacao de fabricas de formulario.
+     * 
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param string $manager
+     * @param array $data
+     * 
+     * @return void
+     */
+    protected function createFormFactoryDefinition(ContainerBuilder $container, $manager, array  $data)
+    {
+        $formSectionName = 'form';
+        $sections = array('registration', 'resetting', 'profile', 'group');
+        
+        foreach ($sections as $section) {
+            // Caso a classe de grupo nao esteja ativa, nao rotear
+            if ($section === 'group' && null === $data['classes']['group'])
+                continue;
+            
+            // Verificar a existencia da configuracao
+            if (isset($data[$section][$formSectionName])) {
+                $definition = strtolower(sprintf('jhv_user.form_factory.%s.%s', $section, $manager));
+                $formConfig = $data[$section][$formSectionName];
+                
+                $container->setDefinition($definition, new Definition(
+                    $container->getParameter('jhv_user.parameter.class.form_factory'), 
+                    array(
+                        new Reference('form.factory'),
+                        $formConfig['name'],
+                        $formConfig['type'],
+                        $formConfig['validation_groups'],
+                    )
+                ));
+            }
+        }
     }
     
 }

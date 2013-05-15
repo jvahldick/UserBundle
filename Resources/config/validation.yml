@@ -1,0 +1,80 @@
+### Usuário
+JHV\Bundle\UserBundle\Model\User:
+    constraints:
+        ### Campo username
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: 
+            fields    : usernameCanonical
+            errorPath : username
+            message   : "jhv_user.username.already_used"
+            groups    :
+                - Registration
+                - Profile
+        
+        ### Campo email
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: 
+            fields    : emailCanonical
+            errorPath : email
+            message   : "jhv_user.email.already_used"
+            groups    :
+                - Registration
+                - Profile
+            
+    ### Propriedades    
+    properties:
+        ### Campo de usuário
+        username:
+            - NotBlank:
+                message   : "jhv_user.username.blank"
+                groups    : ["Registration", "Profile"]
+                
+            - Length:
+                min         : 3
+                minMessage  : "jhv_user.username.short"
+                max         : 150
+                maxMessage  : "jhv_user.username.long"
+                groups      : ["Registration", "Profile"]
+                    
+        ### Campo de e-mail
+        email:
+            - NotBlank:
+                message     : "jhv_user.email.blank"
+                groups      : ["Registration", "Profile"]
+                
+            - Length:
+                min         : 3
+                minMessage  : "jhv_user.email.short"
+                max         : 200
+                maxMessage  : "jhv_user.email.long"
+                groups      : ["Registration", "Profile"]
+                
+            - Email:
+                message     : "jhv_user.email.invalid"
+                groups      : ["Registration", "Profile"]
+                
+        ### Senha
+        plainPassword:
+            - NotBlank:
+                message     : "jhv_user.password.blank"
+                groups      : ["Registration", "ResetPassword", "ChangePassword"]
+                
+            - Length:
+                min         : 3
+                minMessage  : "jhv_user.password.short"
+                groups      : ["Registration", "Profile", "ResetPassword", "ChangePassword"]
+                
+### Grupo
+JHV\Bundle\UserBundle\Model\Group:
+    ### Propriedades    
+    properties:
+        ### Campo de usuário
+        name:
+            - NotBlank:
+                message   : "jhv_user.group.blank"
+                groups    : ["Registration"]
+                
+            - Length:
+                min         : 3
+                minMessage  : "jhv_user.group.short"
+                max         : 200
+                maxMessage  : "jhv_user.group.long"
+                groups      : ["Registration"]
