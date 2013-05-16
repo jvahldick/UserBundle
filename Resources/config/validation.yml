@@ -29,9 +29,7 @@ JHV\Bundle\UserBundle\Model\User:
                 
             - Length:
                 min         : 3
-                minMessage  : "jhv_user.username.short"
                 max         : 150
-                maxMessage  : "jhv_user.username.long"
                 groups      : ["Registration", "Profile"]
                     
         ### Campo de e-mail
@@ -42,9 +40,7 @@ JHV\Bundle\UserBundle\Model\User:
                 
             - Length:
                 min         : 3
-                minMessage  : "jhv_user.email.short"
                 max         : 200
-                maxMessage  : "jhv_user.email.long"
                 groups      : ["Registration", "Profile"]
                 
             - Email:
@@ -59,7 +55,6 @@ JHV\Bundle\UserBundle\Model\User:
                 
             - Length:
                 min         : 3
-                minMessage  : "jhv_user.password.short"
                 groups      : ["Registration", "Profile", "ResetPassword", "ChangePassword"]
                 
 ### Grupo
@@ -74,7 +69,5 @@ JHV\Bundle\UserBundle\Model\Group:
                 
             - Length:
                 min         : 3
-                minMessage  : "jhv_user.group.short"
                 max         : 200
-                maxMessage  : "jhv_user.group.long"
                 groups      : ["Registration"]
