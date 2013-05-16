@@ -19,11 +19,11 @@ use JHV\Bundle\UserBundle\Event\FormEvent;
  */
 class ChangePasswordController extends UserController
 {
-    
+
     /**
      * Efetuar a alteração de senha do usuário.
-     * 
-     * @param \JHV\Bundle\UserBundle\Controller\Request $request
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function changePasswordAction(Request $request)
@@ -42,8 +42,8 @@ class ChangePasswordController extends UserController
         }
         
         // Criação do usuário para alteração de senha
-        $form = $this->getFormFactory()->create('jhv_user_change_password_type', $user, array(
-            'data_class' => $userManager->getClass()
+        $form = $this->container->get(sprintf('jhv_user.form_factory.change_password.%s', $manager))->createForm(array(
+            'data_class' => get_class($user)
         ));
         
         if ('POST' === $request->getMethod()) {
@@ -65,7 +65,7 @@ class ChangePasswordController extends UserController
             }
         }
         
-        return $this->getTemplateRenderer()->renderResponse('profile_change_password', array(
+        return $this->getTemplateRenderer()->renderResponse('change_password_change_password', array(
             'form' => $form->createView()
         ));
     }

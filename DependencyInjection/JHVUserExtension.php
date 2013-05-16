@@ -293,7 +293,7 @@ class JHVUserExtension extends Extension
     protected function getTemplates(array $data)
     {
         $templateSectioName = 'templates';
-        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
+        $sections = array('security', 'registration', 'resetting', 'profile', 'change_password', 'group');
         $templates = array();
         
         // Percorrer sessoes para registro dos templates
@@ -318,7 +318,7 @@ class JHVUserExtension extends Extension
     protected function getRoutes(array $data)
     {
         $routeSectionName = 'routing';
-        $sections = array('security', 'registration', 'resetting', 'profile', 'group');
+        $sections = array('security', 'registration', 'resetting', 'profile', 'change_password', 'group');
         $routes = array();
         
         foreach ($sections as $section) {
@@ -351,10 +351,10 @@ class JHVUserExtension extends Extension
     protected function createFormFactoryDefinition(ContainerBuilder $container, $manager, array  $data)
     {
         $formSectionName = 'form';
-        $sections = array('registration', 'resetting', 'profile', 'group');
-        
+        $sections = array('registration', 'resetting', 'profile', 'change_password', 'group');
+
         foreach ($sections as $section) {
-            // Caso a classe de grupo nao esteja ativa, nao rotear
+            // Caso a classe de grupo nao esteja ativa, nao processar disponibilidade do formulario
             if ($section === 'group' && null === $data['classes']['group'])
                 continue;
             

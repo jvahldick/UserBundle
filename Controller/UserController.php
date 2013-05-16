@@ -80,7 +80,8 @@ abstract class UserController extends ContainerAware
     
     /**
      * Buscar o serviço de renderização de templates.
-     * 
+     *
+     * @throws \RuntimeException
      * @return \JHV\Bundle\UserBundle\Template\RendererInterface
      */
     protected function getTemplateRenderer()

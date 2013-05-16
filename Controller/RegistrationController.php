@@ -36,7 +36,7 @@ class RegistrationController extends ContainerAware
         $userManager    = $handler->getUserManager($manager);
         
         /* @var $formFactory \JHV\Bundle\UserBundle\Form\Factory\FormFactory */
-        $formFactory = $this->container->get('jhv_user.form_factory.registration.sistema');
+        $formFactory = $this->container->get(sprintf('jhv_user.form_factory.registration.%s', $manager));
         
         $user = $userManager->createUser();
         $dispatcher->dispatch(JHVUserEvents::REGISTRATION_INITIALIZE, new UserEvent($user, $request, $userManager->getFirewallName()));

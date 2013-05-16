@@ -67,7 +67,7 @@ class GroupController extends UserController
 
                 $groupManager->updateGroup($group);
                 if (null === $response = $event->getResponse()) {
-                    $url = $this->container->get('router')->generate('jhv_user_groups_list_' . $manager);
+                    $url = $this->container->get('router')->generate('jhv_user_group_list_' . $manager);
                     $response = new RedirectResponse($url);
                 }
 
@@ -131,7 +131,7 @@ class GroupController extends UserController
 
                 $groupManager->updateGroup($group);
                 if (null === $response = $event->getResponse()) {
-                    $url = $this->container->get('router')->generate('jhv_user_groups_list_' . $manager);
+                    $url = $this->container->get('router')->generate('jhv_user_group_list_' . $manager);
                     $response = new RedirectResponse($url);
                 }
 
@@ -164,7 +164,7 @@ class GroupController extends UserController
         }
 
         $groupManager->deleteGroup($group);
-        $response = new RedirectResponse($this->container->get('router')->generate('jhv_user_groups_list_' . $manager));
+        $response = new RedirectResponse($this->container->get('router')->generate('jhv_user_group_list_' . $manager));
 
         // Despachar evento de econclusão da deleção de grupos
         $this->getEventDispatcher()->dispatch(JHVUserEvents::GROUP_DELETE_COMPLETED, new FilterGroupResponseEvent($group, $request, $response));

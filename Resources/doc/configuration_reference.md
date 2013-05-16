@@ -94,7 +94,7 @@ jhv_users:
                 ### Configurações de formulário para o registro de usuários
                 form:
                     name                : "jhv_user_registration_form"
-                    type 	 	: "jhv_user_registration_type"
+                    type 	 	        : "jhv_user_registration_type"
                     validation_groups 	: ["Registration", "Default"]
 
                 ### Configurações de templates para o registro de usuários
@@ -138,9 +138,9 @@ jhv_users:
                 ### Configurações de template a reinicialização de credenciais
                 templates:
                     request     : "JHVUserBundle:Resetting:email_check.html.twig" 	# Requisição da senha
-                    reset 	: "JHVUserBundle:Resetting:reset.html.twig" 		# Reinicialização da senha
-                    error 	: "JHVUserBundle:Resetting:error.html.twig" 		# Erro na localização do usuário
-                    email 	: "JHVUserBundle:Email:resetting.html.twig" 		# E-mail enviado ao usuário
+                    reset 	    : "JHVUserBundle:Resetting:reset.html.twig" 		# Reinicialização da senha
+                    error 	    : "JHVUserBundle:Resetting:error.html.twig" 		# Erro na localização do usuário
+                    email 	    : "JHVUserBundle:Email:resetting.html.twig" 		# E-mail enviado ao usuário
                     check_email : "JHVUserBundle:Resetting:email_check.html.twig" 	# Template informativo solicitando para o usuário verificar o e-mail
 
                 ### Roteamento do registro
@@ -221,12 +221,11 @@ jhv_users:
                 ### Configurações de formulário para os perfis
                 form:
                     name                : "jhv_user_profile_form"
-                    type 		: "jhv_user_profile_type"
+                    type 		        : "jhv_user_profile_type"
                     validation_groups 	: ["Profile", "Default"]
 
                 ### Templates para perfis de usuário
                 templates:
-                    change_password     : "JHVUserBundle:Profile:change_password.html.twig"
                     edit 		: "JHVUserBundle:Profile:edit.html.twig"
                     show 		: "JHVUserBundle:Profile:show.html.twig"
 
@@ -245,6 +244,22 @@ jhv_users:
                         path 		: "/show"
                         controller 	: "JHVUserBundle:Profile:show"
                         methods 	: "GET"
+
+            ### Configurações para recuperação de senha
+            change_password:
+                ### Configurações de formulário para os perfis
+                form:
+                    name                : "jhv_user_change_password_form"
+                    type 		        : "jhv_user_change_password_type"
+                    validation_groups 	: ["ChangePassword", "Default"]
+
+                ### Templates para perfis de usuário
+                templates:
+                    change_password     : "JHVUserBundle:Profile:change_password.html.twig"
+
+                ### Roteamento de perfil
+                routing:
+                    prefix : "/profile"
 
                     ### Modificação de senha
                     change_password:

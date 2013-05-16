@@ -32,7 +32,7 @@ class Mailer implements MailerInterface
     
     public function sendResettingEmailMessage(UserInterface $user, $manager)
     {
-        $template = $this->parameters[$manager]['files']['resetting_email'];
+        $template = $this->parameters[$manager]['resetting_email'];
         $goTo = $this->router->generate('jhv_user_resetting_reset_' . $manager, array('token' => $user->getConfirmationToken()), true);
         $context = array(
             'user' => $user,

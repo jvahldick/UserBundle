@@ -183,6 +183,7 @@ class Configuration implements ConfigurationInterface
                             ->append($this->appendRegistrationSection())
                             ->append($this->appendResettingSection())
                             ->append($this->appendProfileSection())
+                            ->append($this->appendChangePasswordSection())
                             ->append($this->appendGroupSection())
                         ->end()
                     ->end()
@@ -309,12 +310,12 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('templates')
                     ->children()
                         // Reinicializacao de credenciais, ou recuperacao de senha
-                        ->scalarNode('request')->defaultValue('JHVUserBundle:Resetting:error.html.twig')->end()
-                        ->scalarNode('reset')->defaultValue('JHVUserBundle:Email:resetting.html.twig')->end()
+                        ->scalarNode('request')->defaultValue('JHVUserBundle:Resetting:request.html.twig')->end()
+                        ->scalarNode('reset')->defaultValue('JHVUserBundle:Resetting:reset.html.twig')->end()
 
-                        ->scalarNode('error')->defaultValue('JHVUserBundle:Resetting:email_check.html.twig')->end()
-                        ->scalarNode('email')->defaultValue('JHVUserBundle:Resetting:request.html.twig')->end()
-                        ->scalarNode('check_email')->defaultValue('JHVUserBundle:Resetting:reset.html.twig')->end()
+                        ->scalarNode('error')->defaultValue('JHVUserBundle:Resetting:error.html.twig')->end()
+                        ->scalarNode('email')->defaultValue('JHVUserBundle:Email:resetting.html.twig')->end()
+                        ->scalarNode('check_email')->defaultValue('JHVUserBundle:Resetting:email_check.html.twig')->end()
                     ->end()
                     ->addDefaultsIfNotSet()
                 ->end()
@@ -404,7 +405,6 @@ class Configuration implements ConfigurationInterface
                 // Templates referentes ao peril do usuario
                 ->arrayNode('templates')
                     ->children()
-                        ->scalarNode('change_password')->defaultValue('JHVUserBundle:Profile:change_password.html.twig')->end()
                         ->scalarNode('edit')->defaultValue('JHVUserBundle:Profile:edit.html.twig')->end()
                         ->scalarNode('show')->defaultValue('JHVUserBundle:Profile:show.html.twig')->end()
                     ->end()
@@ -417,6 +417,48 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
         ;
         
+        return $node;
+    }
+
+    /**
+     * Verificar as definicoes da configuracao referente a reinicilizacao de senha.
+     *
+     * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
+     */
+    protected function appendChangePasswordSection()
+    {
+        $builder    = new TreeBuilder();
+        $node       = $builder->root('change_password');
+
+        $node
+            ->children()
+                // Formulário
+                ->arrayNode('form')
+                    ->children()
+                        ->scalarNode('name')->defaultValue('jhv_user_change_password_form')->isRequired()->end()
+                        ->scalarNode('type')->defaultValue('jhv_user_change_password_type')->end()
+                        ->arrayNode('validation_groups')
+                            ->prototype('scalar')->end()
+                            ->defaultValue(array('ChangePassword', 'Default'))
+                        ->end()
+                    ->end()
+                    ->addDefaultsIfNotSet()
+                ->end()
+
+                // Templates
+                ->arrayNode('templates')
+                    ->children()
+                        ->scalarNode('change_password')->defaultValue('JHVUserBundle:Profile:change_password.html.twig')->end()
+                    ->end()
+                    ->addDefaultsIfNotSet()
+                ->end()
+
+                // Roteamento
+                ->append($this->appendChangePasswordRouteSection())
+            ->end()
+            ->addDefaultsIfNotSet()
+        ;
+
         return $node;
     }
     
@@ -538,7 +580,26 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->addDefaultsIfNotSet()
                 ->end()
-                
+            ->end()
+            ->addDefaultsIfNotSet()
+        ;
+        
+        return $node;
+    }
+
+    /**
+     * Verificacao e registro do nodo referente a reinicializacao de credenciais
+     * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition
+     */
+    protected function appendChangePasswordRouteSection()
+    {
+        $builder    = new TreeBuilder();
+        $node       = $builder->root('routing');
+
+        $node
+            ->children()
+                ->scalarNode('prefix')->defaultValue('/profile')->end()
+
                 ->arrayNode('change_password')
                     ->children()
                         ->scalarNode('path')->defaultValue('/change-password')->end()
@@ -550,7 +611,7 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->addDefaultsIfNotSet()
         ;
-        
+
         return $node;
     }
     

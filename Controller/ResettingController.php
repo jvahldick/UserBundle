@@ -127,13 +127,11 @@ class ResettingController extends UserController
         if (null !== $event->getResponse()) {
             return $event->getResponse();
         }
-        
-        /* @var $formFactory \Symfony\Component\Form\FormFactory */
-        $formFactory = $this->container->get('form.factory');
-        $form = $formFactory->create('jhv_user_resetting_type', $user, array(
-            'data_class' => $userManager->getClass()
+
+        $form = $this->container->get(sprintf('jhv_user.form_factory.resetting.%s', $manager))->createForm(array(
+            'data_class' => get_class($user),
+            'data'       => $user
         ));
-        $form->setData($user);
         
         if ('POST' === $request->getMethod()) {
             $form->bind($request);
@@ -142,7 +140,7 @@ class ResettingController extends UserController
                 $dispatcher->dispatch(JHVUserEvents::RESETTING_RESET_SUCCESS, $event);
 
                 // Executar atualização do usuário
-                $userManager->updateUser($user);
+                $userManager->updateUser($form->getData());
                 
                 if (null === $response = $event->getResponse()) {
                     $url = $this->container->get('router')->generate('jhv_user_profile_show_' . $manager);
@@ -153,18 +151,19 @@ class ResettingController extends UserController
                 return $response;
             }
         }
-        
-        return $this->container->get('templating')->renderResponse('JHVUserBundle:Resetting:reset.html.twig', array(
+
+        return $this->getTemplateRenderer()->renderResponse('resetting_reset', array(
             'token' => $token,
             'form' => $form->createView(),
         ));
     }
-    
+
     /**
      * Localizar o e-mail truncado para não exibição ao usuário.
-     * Remover o possível usuário do e-mail, retornando assim somente o 
+     * Remover o possível usuário do e-mail, retornando assim somente o
      * domínio do e-mail.
      *
+     * @param \Symfony\Component\Security\Core\User\UserInterface $user
      * @return string
      */
     protected function getObfuscatedEmail(UserInterface $user)
