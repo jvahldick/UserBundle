@@ -11,7 +11,6 @@ services:
     ### Listener quanto ao último login (registro de data)
     jhv_user.listener.interactive_login_listener:
         class     : "JHV\\Bundle\\UserBundle\\EventListener\\LastLoginListener"
-        public    : false
         arguments : ["@jhv_user.manager.handler"]
         tags    :
             - { name: "kernel.event_subscriber" }

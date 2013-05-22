@@ -86,11 +86,11 @@ class JHVUserExtension extends Extension
 
         // Arquivos
         $loader->load('services/services.yml');
+        $loader->load('services/listeners.yml');
         $loader->load('services/security.yml');
         $loader->load('services/mailer.yml');
         $loader->load('services/form.yml');
         $loader->load('services/twig.yml');
-        $loader->load('services/listeners.yml');
         $loader->load('services/validator.yml');
     }
     
