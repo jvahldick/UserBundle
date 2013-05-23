@@ -4,7 +4,7 @@ namespace JHV\Bundle\UserBundle\Form\Type;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
+use Symfony\Component\Security\Core\Validator\Constraint\UserPassword;
 
 /**
  * ChangePasswordFormType
