@@ -22,7 +22,7 @@ class UserManager extends BaseUserManager
     protected $objectManager;
     
     public function __construct(UserHelperInterface $helper, $firewallName, ObjectManager $objectManager, $userClass)
-    {        
+    {
         parent::__construct($helper, $firewallName);
 
         $this->class            = $userClass;

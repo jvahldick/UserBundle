@@ -485,7 +485,7 @@ abstract class User implements UserInterface, GroupableInterface
     
     public function __toString()
     {
-        return (string) $this->getUsername();
+        return $this->username ?: '';
     }
     
 }

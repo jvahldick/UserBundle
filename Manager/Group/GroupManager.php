@@ -2,8 +2,6 @@
 
 namespace JHV\Bundle\UserBundle\Manager\Group;
 
-use JHV\Bundle\UserBundle\Model\GroupInterface;
-
 /**
  * GroupManager
  * 
@@ -13,12 +11,6 @@ use JHV\Bundle\UserBundle\Model\GroupInterface;
  */
 abstract class GroupManager implements GroupManagerInterface
 {
-    
-    abstract public function getClass();
-    abstract public function findGroupBy(array $criteria);
-    abstract public function deleteGroup(GroupInterface $group);
-    abstract public function findGroups();
-    abstract public function updateGroup(GroupInterface $group, $flush = true);
     
     public function createGroup($name)
     {

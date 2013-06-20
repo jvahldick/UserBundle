@@ -12,7 +12,8 @@ group:
         deleted: O grupo foi removido
 
 # Security
-"Bad credentials": Usuário ou senha inválida
+"Bad credentials"           : "Usuário ou senha inválida"
+"User account is disabled"  : "Conta de usuário desabilitada"
 
 security:
     login:

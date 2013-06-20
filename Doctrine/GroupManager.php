@@ -49,6 +49,11 @@ class GroupManager extends BaseGroupManager
         return $this->repository->findAll();
     }
 
+    public function findGroupsBy(array $criteria)
+    {
+        return $this->repository->findBy($criteria);
+    }
+
     public function updateGroup(GroupInterface $group, $flush = true)
     {
         $this->objectManager->persist($group);
@@ -56,5 +61,14 @@ class GroupManager extends BaseGroupManager
             $this->objectManager->flush();
     }
 
+    public function getObjectManager()
+    {
+        return $this->objectManager;
+    }
+
+    public function getRepository()
+    {
+        return $this->repository;
+    }
 
 }

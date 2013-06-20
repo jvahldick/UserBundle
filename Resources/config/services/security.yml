@@ -7,7 +7,7 @@ services:
             - "@security.user_checker"
             - "@security.authentication.session_strategy"
             - "@service_container"
-            
+
     ### Listener quanto ao último login (registro de data)
     jhv_user.listener.interactive_login_listener:
         class     : "JHV\\Bundle\\UserBundle\\EventListener\\LastLoginListener"

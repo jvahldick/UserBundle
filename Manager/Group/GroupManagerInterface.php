@@ -2,6 +2,7 @@
 
 namespace JHV\Bundle\UserBundle\Manager\Group;
 
+use Doctrine\ORM\EntityRepository;
 use JHV\Bundle\UserBundle\Model\GroupInterface;
 
 /**
@@ -13,11 +14,17 @@ use JHV\Bundle\UserBundle\Model\GroupInterface;
  */
 interface GroupManagerInterface
 {
-    
+
+    /**
+     * Verificar o nome da classe de grupos definida.
+     *
+     * @return string
+     */
     function getClass();
     function findGroupBy(array $criteria);
     function deleteGroup(GroupInterface $group);
     function findGroups();
+    function findGroupsBy(array $criteria);
     function updateGroup(GroupInterface $group, $flush = true);
     
     /**
@@ -31,6 +38,7 @@ interface GroupManagerInterface
     /**
      * Localiza grupo através do nome.
      *
+     * @param string $name
      * @return \JHV\Bundle\UserBundle\Model\GroupInterface|null
      */
     function findGroupByName($name);
