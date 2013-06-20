@@ -186,7 +186,7 @@ class JHVUserExtension extends Extension
             ->addTag('jhv_user.user_manager', array('identifier' => $manager))
                 
             // Definicao nao sera publica
-            ->setPublic(true)
+            ->setPublic(false)
         ;
     }
     
